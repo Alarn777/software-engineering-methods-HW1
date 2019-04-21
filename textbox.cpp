@@ -105,28 +105,29 @@ void TextBox::draw(SHORT X)
     COORD coord = coord = { left, top };
    
     auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    
     SetConsoleCursorPosition(handle, coord);
     SetConsoleTextAttribute(handle, color | (background << 4));
     
-    std::cout << (char) 0xda;
-    for (int i=0; i<width; i++)
+    std::cout << (char) 0xda; // left top corner
+    for (int i=0; i<width; i++) //top line
         std::cout << (char) 0xc4;
-    std::cout << (char) 0xbf;
+    std::cout << (char) 0xbf; //right top corner
 
     SetConsoleCursorPosition(handle, {coord.X, coord.Y+1});
-    std::cout << (char) 0xb3;
+    std::cout << (char) 0xb3; //vertical line
     
     for (int i =0; i < width; i++)
         std::cout << (i >= value.length() ? ' ' : value[i]);
     
     SetConsoleCursorPosition(handle, { left + width + 1, top + 1 });
-    std::cout << (char) 0xb3;
+    std::cout << (char) 0xb3; //vertical line
 
     SetConsoleCursorPosition(handle, { left, top + 2 });
-    std::cout << (char) 0xc0;
-    for (int i = 0; i < width; i++)
+    std::cout << (char) 0xc0; // bottom left corner
+    for (int i = 0; i < width; i++) // bottom border
         std::cout << (char) 0xc4;
-    std::cout << (char) 0xd9;
+    std::cout << (char) 0xd9; //right bottom corner
 
     if(X != -1)
         SetConsoleCursorPosition(handle, { left +1 + X, top+1 });
