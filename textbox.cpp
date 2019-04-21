@@ -8,15 +8,31 @@ TextBox::TextBox(short width, short top, short left, std::string value) :
     background(0)  { }
 
 void TextBox::handleKeyboardEvent(KEY_EVENT_RECORD& event)
-{
+{   
+        CONSOLE_SCREEN_BUFFER_INFO info;
+        auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        GetConsoleScreenBufferInfo(handle, &info);
+        auto offset = info.dwCursorPosition.X - this->left - 1;
     if (!event.bKeyDown) return;
 
     if (event.wVirtualKeyCode >= 0x30 && event.wVirtualKeyCode <= 0x5a)
     {
-        if(value.length() >= int(width))
+        
+
+        if(value.length() >= int(width - 1 ))
             return;
-        value.push_back(event.uChar.AsciiChar);
-        draw();
+
+        std::string temStrbefore = value.substr(0,offset);
+        std::string temStrafter = value.substr(offset,value.length()-1);
+        // value[offset] = event.uChar.AsciiChar;
+        auto input = event.uChar.AsciiChar;
+
+        
+        value = temStrbefore + input + temStrafter;
+
+        SHORT newCoursorX = temStrbefore.length()+1;
+        // value.push_back(event.uChar.AsciiChar);
+        draw(newCoursorX);
     }
 
     if (event.wVirtualKeyCode == VK_LEFT || event.wVirtualKeyCode == VK_RIGHT)
@@ -30,12 +46,10 @@ void TextBox::handleKeyboardEvent(KEY_EVENT_RECORD& event)
                 return;
         }
         int textWidth = value.length();
-        CONSOLE_SCREEN_BUFFER_INFO info;
-
-        auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        GetConsoleScreenBufferInfo(handle, &info);
-        
-        auto offset = info.dwCursorPosition.X - this->left - 1; // absolute cursor position in textbox 
+        // CONSOLE_SCREEN_BUFFER_INFO info;
+        // auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        // GetConsoleScreenBufferInfo(handle, &info);
+        // auto offset = info.dwCursorPosition.X - this->left - 1;
 
         if (offset > 0 && event.wVirtualKeyCode == VK_LEFT)
         {
@@ -50,10 +64,34 @@ void TextBox::handleKeyboardEvent(KEY_EVENT_RECORD& event)
 
     if (event.wVirtualKeyCode == VK_BACK || event.wVirtualKeyCode == VK_DELETE)
     {
+
+        // SetConsoleCursorPosition(handle, {0,0});
+        // std::cout << offset;
         
-        if(value.length() > 0)
-            value.pop_back();
-        draw();
+        if(offset == 0){
+           return;
+        }
+        
+
+        if(value.length() > 0 && offset > 0)
+        {
+             SetConsoleCursorPosition(handle, {0,10});
+                std::cout << offset;
+                
+                std::string temStrafter = value.substr(offset,value.length()-1);
+                std::string temStrbefore = value.substr(0,offset);
+                value = temStrbefore.substr(0,temStrbefore.length()-1)  + temStrafter;
+                SHORT newCoursorX = temStrbefore.length()-1;
+                if(offset > 1)
+                {     
+                    // newCoursorX = 0; 
+                    draw(newCoursorX);
+                }
+                else
+                    draw(0);
+        }
+        else
+            draw(-1);
     }
 
     // switch(event.wVirtualKeyCode)
@@ -62,10 +100,10 @@ void TextBox::handleKeyboardEvent(KEY_EVENT_RECORD& event)
     // }
 }
 
-void TextBox::draw()
+void TextBox::draw(SHORT X)
 {
-    COORD coord = { left, top };
-    
+    COORD coord = coord = { left, top };
+   
     auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
     
     SetConsoleCursorPosition(handle, coord);
@@ -91,7 +129,9 @@ void TextBox::draw()
         std::cout << (char) 0xc4;
     std::cout << (char) 0xd9;                       //right bottom corner
 
-    SetConsoleCursorPosition(handle, { left + 1 + value.length(), top+1 });
-
+    if(X != -1)
+        SetConsoleCursorPosition(handle, { left +1 + X, top+1 });
+    else
+        SetConsoleCursorPosition(handle, { left +1 + value.length(), top+1 });
 }
 

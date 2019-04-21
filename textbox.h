@@ -13,7 +13,7 @@ class TextBox
 
         std::string value;
         TextBox(short width, short top, short left, std::string value);
-        void draw();
+        void draw(SHORT X);
 
         void handleKeyboardEvent(KEY_EVENT_RECORD&);
         void handleMouseEvent(MOUSE_EVENT_RECORD&);

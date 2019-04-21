@@ -5,8 +5,8 @@ int main(int argc, char const *argv[])
 {
     auto handle = GetStdHandle(STD_INPUT_HANDLE);
 
-    TextBox tb(12, 3, 3, "hello");
-    tb.draw();
+    TextBox tb(12, 3, 3, "12345");
+    tb.draw(-1);
     
     while (1)
     {
