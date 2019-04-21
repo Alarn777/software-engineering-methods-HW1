@@ -13,12 +13,22 @@ void TextBox::handleKeyboardEvent(KEY_EVENT_RECORD& event)
 
     if (event.wVirtualKeyCode >= 0x30 && event.wVirtualKeyCode <= 0x5a)
     {
+        if(value.length() >= int(width))
+            return;
         value.push_back(event.uChar.AsciiChar);
         draw();
     }
 
     if (event.wVirtualKeyCode == VK_LEFT || event.wVirtualKeyCode == VK_RIGHT)
     {
+        if(event.wVirtualKeyCode == VK_RIGHT){
+            if(value.length() >= int(width))
+                return;
+        }
+        if(event.wVirtualKeyCode == VK_LEFT){
+            if(value.length() <= 0)
+                return;
+        }
         int textWidth = value.length();
         CONSOLE_SCREEN_BUFFER_INFO info;
 
@@ -32,15 +42,17 @@ void TextBox::handleKeyboardEvent(KEY_EVENT_RECORD& event)
             SetConsoleCursorPosition(handle,{ info.dwCursorPosition.X - 1, info.dwCursorPosition.Y });
         }
 
-        if (offset > textWidth && event.wVirtualKeyCode == VK_RIGHT)
+        if (offset < textWidth && event.wVirtualKeyCode == VK_RIGHT)
         {
             SetConsoleCursorPosition(handle,{ info.dwCursorPosition.X + 1, info.dwCursorPosition.Y });
         }
     }
 
-    if (event.wVirtualKeyCode == VK_BACK)
+    if (event.wVirtualKeyCode == VK_BACK || event.wVirtualKeyCode == VK_DELETE)
     {
-        value.pop_back();
+        
+        if(value.length() > 0)
+            value.pop_back();
         draw();
     }
 
