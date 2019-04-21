@@ -1,6 +1,7 @@
 #include "label.h"
+#include "textbox.h"
 
-int main(int argc, char** argv)
+int main(int argc, char const *argv[])
 {
     Label l;
     l.setText("Hello more World");
@@ -12,5 +13,24 @@ int main(int argc, char** argv)
     g.setText("Such label, so wow");
     g.draw();
 
-    while(1);
+    auto handle = GetStdHandle(STD_INPUT_HANDLE);
+
+    TextBox tb(12, 3, 3, "hello");
+    tb.draw();
+    
+    while (1)
+    {
+        INPUT_RECORD ir;
+        DWORD count;
+
+        ReadConsoleInput(handle, &ir, 1, &count);
+
+        if (count)
+        {
+            if (ir.EventType == KEY_EVENT)
+            {
+                tb.handleKeyboardEvent(ir.Event.KeyEvent);
+            }
+        }
+    }
 }
